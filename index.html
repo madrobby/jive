@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>
+      Jony Jive: A Jony Ive Soundboard
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:100' rel='stylesheet' type='text/css'>
+    <style>
+      html {
+        height: 100%;
+        overflow: none;
+        /* 1280x720 or similar image works best */
+        background-image: url(closed_mouth.png), linear-gradient(#f0f0f0, #fafafa);
+        background-repeat: no-repeat;
+        background-position: bottom right;
+        background-size: contain;
+      }
+      body {
+        min-height: 500px;
+        min-width: 700px;
+        margin: 0;
+      }
+      .overlay {
+        position: absolute;
+        left: 0;
+        top: 0px;
+        bottom: 0;
+        right: 0;
+        /* 1280x720 or similar image works best */
+        background-image: url(open_mouth.png);
+        background-repeat: no-repeat;
+        background-position: bottom right;
+        background-size: contain;
+        opacity: 0;
+        -webkit-transform: translateZ(0px);
+        pointer-events: none;
+      }
+      .overlay-activator {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 50%;
+        top: 200px;
+        bottom: 0;
+        right: 0;
+        cursor: pointer;
+        -webkit-touch-callout: none;
+      }
+      .overlay.playing {
+        opacity: 1.0;
+        -webkit-animation: talking_head 1s infinite;
+        animation: talking_head 1s infinite;
+      }
+      .overlay-activator:hover + .overlay {
+        opacity: 1.0;
+      }
+      .sounds {
+        position: fixed;
+        top: 100px;
+        left: 25px;
+        width: 40%;
+        min-width: 400px;
+        height: 50%;
+        font: 15px/19px "Helvetica Neue", "HelveticaNeueUltraLight", "Helvetica Neue Ultra Light", "Roboto", "Helvetica", "Arial";
+        font-weight: 300;
+        color: #0076ff;
+        overflow-y: auto;
+        padding: 5% 0 0 0;
+      }
+      .sounds > div {
+        cursor: pointer;
+        -webkit-transition: all 0.5s;
+        float: left;
+        width: 28%;
+        height: 19px;
+        margin-right: 20px;
+        -webkit-touch-callout: none;
+      }
+      #sequence_wrapper {
+        color: #888;
+      }
+      .sounds > div:hover {
+      }
+      .by {
+        position: fixed;
+        font: 11px/15px "Helvetica Neue", "HelveticaNeueUltraLight", "Helvetica Neue Ultra Light", "Roboto", "Helvetica", "Arial";
+        color: #aaa;
+        left: 25px;
+        bottom: 10px;
+        font-weight: 300;
+        max-width: 200px;
+        cursor: default;
+      }
+      .by a {
+        text-decoration: underline;
+        color: #0076ff;
+      }
+      .note {
+        margin-bottom: 15px;
+      }
+      .note a {
+        text-decoration: underline;
+      }
+      .by .note {
+        display: block;
+      }
+      .sequence-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: auto;
+        padding: 5px 25px;
+        font: 15px/19px "Helvetica Neue", "HelveticaNeueUltraLight", "Helvetica Neue Ultra Light", "Roboto", "Helvetica", "Arial";
+              font-weight: 300;
+        color: #0076ff;
+        background: #f0f0f0;
+        border-bottom: 1px solid #0076ff;
+        display: none;
+      }
+      .sequence-wrapper.active {
+        display: block;
+      }
+      #sequence > div {
+        display: inline-block;
+        padding: 0 4px 0 0;
+        cursor: not-allowed;
+        color: #0076ff;
+      }
+      #sequence > div:hover {
+        color: #589cfe;
+      }
+      #play, #reset, #tweet {
+        display: block;
+        color: #0076ff;
+        float: right;
+        margin-left: 5px;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+      #play:hover, #reset:hover, #tweet:hover {
+        color: #589cfe;
+      }
+      .mobile {
+        display: none;
+      }
+      @media only screen and (max-device-width: 480px) {
+        body {
+          min-width: 0;
+          max-width: 100%;
+        }
+        .mobile {
+          display: block;
+          font: 15px/19px "Helvetica Neue", "HelveticaNeueUltraLight", "Helvetica Neue Ultra Light", "Roboto", "Helvetica", "Arial";
+              font-weight: 300;
+          color: #ff7676;
+          padding: 5px;
+        }
+        .sounds {
+          position: fixed;
+          top: 0;
+          left: 0px;
+          width: 100%;
+          min-width: auto;
+          max-width: 100%;
+          padding: 10px;
+          box-sizing: border-box;
+          height: auto;
+          overflow: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .sequence-wrapper {
+          padding: 5px 5px;
+        }
+        .sounds > div {
+          width: 50%;
+        }
+        .by {
+          left: 10px;
+          bottom: 10px;
+        }
+        #random {
+          display: none;
+        }
+      }
+      @-webkit-keyframes talking_head {
+        0% { opacity: 0; }
+        9% { opacity: 0; }
+        10% { opacity: 1; }
+        15% { opacity: 1; }
+        16% { opacity: 0; }
+        33% { opacity: 0; }
+        34% { opacity: 1; }
+        45% { opacity: 1; }
+        46% { opacity: 0; }
+        76% { opacity: 0; }
+        77% { opacity: 1; }
+        100% { opacity: 1; }
+      }
+      @keyframes talking_head {
+        0% { opacity: 0; }
+        9% { opacity: 0; }
+        10% { opacity: 1; }
+        15% { opacity: 1; }
+        16% { opacity: 0; }
+        33% { opacity: 0; }
+        34% { opacity: 1; }
+        45% { opacity: 1; }
+        46% { opacity: 0; }
+        76% { opacity: 0; }
+        77% { opacity: 1; }
+        100% { opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay-activator" id="random"></div>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="mobile" id="mobile_warning">
+      Due to limitations of HTML5 audio APIs on mobile phones,
+      this site works best on desktop browsers for now.
+    </div>
+
+    <div class="sequence-wrapper" id="sequence_wrapper">
+      make a sentence:
+      <div id="play">play</div>
+      <a href="https://twitter.com/intent/tweet" id="tweet" class="twitter-share-button">tweet</a>
+      <div id="reset" title="Remove all words and start a new sentence">reset</div>
+      <div id="sequence"></div>
+    </div>
+
+    <div class="sounds" id="sounds"></div>
+
+    <div class="by" id="by">
+      <div class="note">
+        Blah blah blah.
+      </div>
+      Blah blah blah.
+    </div>
+    <script>
+      // from twitter's developer site
+      (function() {
+        if (window.__twitterIntentHandler) return;
+        var intentRegex = /twitter\.com(\:\d{2,4})?\/intent\/(\w+)/,
+            windowOptions = 'scrollbars=yes,resizable=yes,toolbar=no,location=yes',
+            width = 550,
+            height = 420,
+            winHeight = screen.height,
+            winWidth = screen.width;
+        function handleIntent(e) {
+          e = e || window.event;
+          var target = e.target || e.srcElement,
+              m, left, top;
+          while (target && target.nodeName.toLowerCase() !== 'a') {
+            target = target.parentNode;
+          }
+          if (target && target.nodeName.toLowerCase() === 'a' && target.href) {
+            m = target.href.match(intentRegex);
+            if (m) {
+              left = Math.round((winWidth / 2) - (width / 2));
+              top = 0;
+              if (winHeight > height) {
+                top = Math.round((winHeight / 2) - (height / 2));
+              }
+              window.open(target.href, 'intent', windowOptions + ',width=' + width +
+                                                 ',height=' + height + ',left=' + left + ',top=' + top);
+              e.returnValue = false;
+              e.preventDefault && e.preventDefault();
+            }
+          }
+        }
+        if (document.addEventListener) {
+          document.addEventListener('click', handleIntent, false);
+        } else if (document.attachEvent) {
+          document.attachEvent('onclick', handleIntent);
+        }
+        window.__twitterIntentHandler = true;
+      }());
+
+      // jive code starts here
+      document.addEventListener("DOMContentLoaded", function(event){
+        var audio = {},
+            files = [],
+            playing = 0,
+            sequence = [],
+            sequenceToPlay = [],
+            sequenceIsPlaying = false,
+            $sequence = document.getElementById('sequence'),
+            sortedWords,
+
+            // this should match the filenames (use space instead of -)
+            // this is used for he list of items shown to the user
+            // ALWAYS ADD NEW WORDS AT THE END OF THE LIST OR LINKS
+            // WILL BREAK
+            // Protip: conver aifc (QuickTime Player audio recording)
+            // to mp3 on the command line with: $ ffmpeg -i blah.aifc blah.mp3
+            words = ['Cheese','The','Monkey','Pants'],
+
+            // should contain same number of items as the words array
+            // use the actual phrase said for each word
+            phrases = ['cheese','the','monkey','pants'];
+
+        function fileForPhrase(phrase){
+          return phrase.toLowerCase().replace(/\s/g,'-');
+        }
+        function serializeSequence(){
+          return sequence.map(function(item){
+            return item.toString(36);
+          }).join('.');
+        }
+        function addToSequence(phrase){
+          var index = files.indexOf(fileForPhrase(phrase));
+          sequence.push(index);
+          history.pushState(null,null,'#'+serializeSequence());
+          renderSequence();
+        }
+        function parseSequenceFromURL(){
+          var items = location.hash.replace(/^#/,'').split('.');
+          if (items.length==0) return;
+          items.forEach(function(item){
+            var number = parseInt(item,36);
+            if (isNaN(number)) return;
+            if (number<0) return;
+            if (number>=files.length) return;
+            addToSequence(files[number]);
+          });
+          playSequence();
+        }
+        function setTweetData(){
+          var tweet = document.getElementById('tweet'),
+            content = '';
+          if (sequence.length == 0)
+            content = 'Some default value';
+          else {
+            content = sequence.map(function(item){
+              return phrases[item];
+            }).join(' ');
+            if (content.length > 95) content = content.substr(0,90)+'…';
+            content = "Blah says, “"+content+"”"
+          }
+          tweet.href =
+            'http://twitter.com/intent/tweet?'+
+            'text='+encodeURIComponent(content)+
+            '&url='+encodeURIComponent(location.href);
+        }
+        function renderSequence(){
+          $sequence.innerHTML = '';
+          if (sequence.length == 0)
+            document.getElementById('sequence_wrapper').classList.remove('active');
+          else
+            document.getElementById('sequence_wrapper').classList.add('active');
+          sequence.forEach(function(item, index){
+            var div = document.createElement('div');
+            div.innerHTML = phrases[item];
+            div.addEventListener('click', function(){
+              sequence.splice(index,1);
+              renderSequence();
+              stopPlayingSequence();
+            });
+            $sequence.appendChild(div);
+          });
+          setTweetData();
+          layout();
+        }
+        function layout(){
+          document.getElementById('sounds').style.top =
+            ((document.getElementById('sequence_wrapper').offsetHeight||0) +
+             (document.getElementById('mobile_warning').offsetHeight||0)) + 'px';
+          document.getElementById('sounds').style.bottom =
+            ((document.getElementById('by').offsetHeight||0) + 20) + 'px';
+        }
+        function clearSequence(){
+          if (!confirm('Are you sure you want to start a new sentence?')) return;
+          stopPlayingSequence();
+          sequence = [];
+          renderSequence();
+          history.pushState(null,null,'#');
+        }
+        function playSequence(){
+          if(sequenceIsPlaying) return;
+          if(sequence.length==0) return;
+          sequenceIsPlaying = true;
+          sequenceToPlay = sequence.concat();
+          play(files[sequence[0]]);
+        }
+        function stopPlayingSequence(){
+          sequenceIsPlaying = false;
+          sequenceToPlay = [];
+          quiet();
+        }
+        function quiet(){
+          var key;
+          for(key in audio){
+            if (typeof audio[key] == 'string') return;
+            if (audio[key].paused) return;
+            audio[key].pause();
+          }
+        }
+        document.getElementById('play').addEventListener('click', playSequence);
+        document.getElementById('reset').addEventListener('click', clearSequence);
+        function play(phrase){
+          console.log('playing '+phrase)
+          if(typeof audio[phrase] == 'string') {
+            audio[phrase] = new Audio(phrase+'.mp3');
+            audio[phrase].addEventListener('ended', function(){
+              playing--;
+              if(playing==0)
+                document.getElementById('overlay').classList.remove('playing');
+              if(sequenceIsPlaying) {
+                sequenceToPlay.splice(0,1);
+                if (sequenceToPlay.length==0) {
+                  sequenceIsPlaying = false;
+                  return;
+                }
+                play(files[sequenceToPlay[0]]);
+              }
+            });
+          }
+          if(!audio[phrase].paused) return;
+          if(!sequenceIsPlaying) addToSequence(phrase);
+          audio[phrase].play();
+          playing++;
+          document.getElementById('overlay').classList.add('playing');
+        };
+        words.forEach(function(phrase){
+          var filename = fileForPhrase(phrase);
+          audio[filename] = filename;
+          files.push(filename);
+        });
+        sortedWords = words.concat();
+        sortedWords.sort();
+        sortedWords.forEach(function(phrase){
+          var filename = fileForPhrase(phrase),
+            div = document.createElement('div');
+          div.innerHTML = phrase;
+          div.addEventListener('click', function(){
+            play(filename);
+          });
+          document.getElementById('sounds').appendChild(div);
+        });
+        parseSequenceFromURL();
+        layout();
+        document.getElementById('random').addEventListener('click', function(){
+          play(files[Math.floor(Math.random()*files.length)]);
+        });
+      });
+    </script>
+  </body>
+</html>
